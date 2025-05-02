@@ -14,30 +14,27 @@ This project implements a custom gradient boosting algorithm from scratch for cl
 - **Multithreading** for cross-validation
 ## Realization
 The principle of gradient boosting resides in the sequential construction of weak learners that approximate the negative gradient of the loss function. Cross-entropy was used as a loss function
-$$ 
-\mathcal{F}(\vec x) = \sum_{k=0}^{K}\mathcal{F_k}(\vec x)\space\space\space\space\space\space\space\space\space\space\space\space 
-CE = \sum_{i=0}^N\sum_{c=0}^C\space w_c y_i \space {exp(p_{i,c}) \over \sum_{k=0}^C exp(p_{i,k})} 
-$$
-We will look for the new weak learner as a constant correction to the previous one. To approximate the loss function, we decompose it into a Taylor series and find a constant that minimizes the loss function
-$$ \mathcal{L}(\vec y, \mathcal{F_k}(\vec x) + \vec\gamma ) ≈ \mathcal{L}(\vec y, \mathcal{F_k}(\vec x)) 
-+ \nabla_\mathcal{F_k}\mathcal{L}(\vec y, \mathcal{F_{k}}(\vec x))^\mathsf{T}\space\vec\gamma 
-+ 0.5\space\vec\gamma^\mathsf{T}\Delta_\mathcal{F_k}\mathcal{L}(\vec y, \mathcal{F_{k}}(\vec x))\space\vec\gamma 
-+ \lambda\vec\gamma^\mathsf{T}\vec\gamma$$
 
-$$ \nabla_{\mathcal{\gamma}}\mathcal{L}(\vec y, \mathcal{F_k}(\vec x) + \vec\gamma ) =  
-\nabla_\mathcal{F_k}\mathcal{L}(\vec y, \mathcal{F_{k}}(\vec x)) 
-+ 0.5\space\nabla_{\mathcal{\gamma}}[\vec\gamma^\mathsf{T}\space \Delta_\mathcal{F_k}\mathcal{L}(Y, \mathcal{F_{k}}(\vec x))\space\vec\gamma] + \lambda\vec\gamma = 0 $$
+$$\mathcal{F}(\vec x)=\sum_{k=0}^{K}\mathcal{F_k}(\vec x)\space\space\space\space\space\space\space\space\space\space\space\space CE=\sum_{i=0}^N\sum_{c=0}^C\space w_cy_i\space{exp(p_{i,c})\over\sum_{k=0}^Cexp(p_{i,k})}$$
+
+We will look for the new weak learner as a constant correction to the previous one. To approximate the loss function, we decompose it into a Taylor series and find a constant that minimizes the loss function
+
+$$\mathcal{L}(\vec y,\mathcal{F_k}(\vec x)+\vec\gamma)≈\mathcal{L}(\vec y,\mathcal{F_k}(\vec x))+\nabla_\mathcal{F_k}\mathcal{L}(\vec y,\mathcal{F_{k}}(\vec x))^\mathsf{T}\space\vec\gamma+0.5\space\vec\gamma^\mathsf{T}\Delta_\mathcal{F_k}\mathcal{L}(\vec y,\mathcal{F_{k}}(\vec x))\space\vec\gamma+\lambda\vec\gamma^\mathsf{T}\vec\gamma$$
+
+$$\nabla_{\mathcal{\gamma}}\mathcal{L}(\vec y,\mathcal{F_k}(\vec x)+\vec\gamma)=\nabla_\mathcal{F_k}\mathcal{L}(\vec y,\mathcal{F_{k}}(\vec x))+0.5\space\nabla_{\mathcal{\gamma}}[\vec\gamma^\mathsf{T}\space \Delta_\mathcal{F_k}\mathcal{L}(\vec y,\mathcal{F_{k}}(\vec x))\space\vec\gamma]+\lambda\vec\gamma=0$$
 
 $$\vec\gamma^T\space \Delta_\mathcal{F_k}\mathcal{L}(\vec y, \mathcal{F_{k}}(\vec x))\space\vec\gamma = \vec\gamma^\mathsf{T}\space \mathcal{\hat H} \space\vec\gamma\space\space\space\space\space\space\space\space\space\space \mathcal{\vec G} = \nabla_\mathcal{F_k}\mathcal{L}(\vec y, \mathcal{F_{k}}(\vec x)) $$
-$$ 0 =  \mathcal{\vec G} + 0.5\space\nabla_{\mathcal{Y}}[\vec\gamma^{\mathsf{T}}\space \mathcal{\hat H} \space\vec\gamma  ]+ \alpha\space sign(\vec\gamma) + \lambda\vec\gamma = \mathcal{\vec G} + { {\mathcal{\hat H} } + {\mathcal{\hat H} }^\mathsf{T} \over 2}\space\hat\gamma  + \lambda\vec\gamma$$
 
-$$\space\vec\gamma = -\mathcal{\vec G}^\mathsf{T}[\space{\mathcal{\hat H} } + \lambda\hat I]^{-1}  $$
+$$0 =  \mathcal{\vec G} + 0.5\space\nabla_{\mathcal{Y}}[\vec\gamma^{\mathsf{T}}\space \mathcal{\hat H} \space\vec\gamma  ]+ \lambda\vec\gamma = \mathcal{\vec G} + { {\mathcal{\hat H} } + {\mathcal{\hat H} }^\mathsf{T} \over 2}\space\hat\gamma  + \lambda\vec\gamma$$
+
+$$\space\vec\gamma=-\mathcal{\vec G}^\mathsf{T}[\space{\mathcal{\hat H} }+\lambda\hat I]^{-1}$$
+
 Substituting the resulting expression into the loss function, we obtain an approximation of Gain
-$$ CE ≈ C 
-+ \mathcal{\vec G}^\mathsf{T}\space\vec\gamma 
-+ 0.5\space\vec\gamma^\mathsf{T}\mathcal{\hat H}\space\vec\gamma 
-= C-{\mathcal{\vec G}^\mathsf{T}[\space{\mathcal{\hat H} } + \lambda\hat I]^{-1}\mathcal{\vec G} \over 2}$$
-$$ Gain = {\mathcal{\vec G}^\mathsf{T}[\space{\mathcal{\hat H} } + \lambda\hat I]^{-1}\mathcal{\vec G} \over 2}\bigg|_{L}+{\mathcal{\vec G}^\mathsf{T}[\space{\mathcal{\hat H} } + \lambda\hat I]^{-1}\mathcal{\vec G} \over 2}\bigg|_{R}-{\mathcal{\vec G}^\mathsf{T}[\space{\mathcal{\hat H} } + \lambda\hat I]^{-1}\mathcal{\vec G} \over 2}\bigg|_{R+L} $$
+
+$$CE≈C+\mathcal{\vec G}^\mathsf{T}\space\vec\gamma+0.5\space\vec\gamma^\mathsf{T}\mathcal{\hat H}\space\vec\gamma=C-{\mathcal{\vec G}^\mathsf{T}[\space{\mathcal{\hat H}}+\lambda\hat I]^{-1}\mathcal{\vec G}\over 2}$$
+
+$$ Gain= CE_{L+R} - CE_{L} - CE_{R} $$
+
 ## Current Performance
 The model currently achieves **AUC-ROC less 0.5**, indicating no discriminative capability beyond random chance.
 
