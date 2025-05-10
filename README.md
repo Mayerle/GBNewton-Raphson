@@ -1,4 +1,4 @@
-# Gradient Boosting for Liver Cirrhosis Stage Prediction
+# Gradient Boosting Newton-Raphson algorithm
 ## Description
 This project implements a custom gradient boosting algorithm from scratch for classifying <a href="https://www.kaggle.com/datasets/fedesoriano/cirrhosis-prediction-dataset">liver cirrhosis stages</a>, utilizing `pandas` and `numpy` for core computations. The implementation features a novel optimization approach using the multivariate Newton-Raphson method to approximate cross-entropy loss.
 
